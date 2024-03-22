@@ -77,8 +77,10 @@ function getDayName(date) {
  * Date('2024-02-13T00:00:00Z') => Date('2024-02-16T00:00:00Z')
  * Date('2024-02-16T00:00:00Z') => Date('2024-02-23T00:00:00Z')
  */
-function getNextFriday(/* date */) {
-  throw new Error('Not implemented');
+function getNextFriday(date) {
+  const nextFriday = date.getDate() + ((12 - date.getDay()) % 7);
+  const res = date.setDate(nextFriday);
+  return new Date(res);
 }
 
 /**
@@ -244,8 +246,10 @@ function getWorkSchedule(/* period, countWorkDays, countOffDays */) {
  * Date(2022, 2, 1) => false
  * Date(2020, 2, 1) => true
  */
-function isLeapYear(/* date */) {
-  throw new Error('Not implemented');
+function isLeapYear(date) {
+  const year = date.getFullYear();
+  const daysInFeb = getCountDaysInMonth(2, year);
+  return daysInFeb === 29;
 }
 
 module.exports = {
