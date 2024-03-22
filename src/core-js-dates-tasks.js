@@ -109,8 +109,14 @@ function getCountDaysInMonth(month, year) {
  * '2024-02-01T00:00:00.000Z', '2024-02-02T00:00:00.000Z'  => 2
  * '2024-02-01T00:00:00.000Z', '2024-02-12T00:00:00.000Z'  => 12
  */
-function getCountDaysOnPeriod(/* dateStart, dateEnd */) {
-  throw new Error('Not implemented');
+function getCountDaysOnPeriod(dateStart, dateEnd) {
+  return (
+    1 +
+    Math.ceil(
+      (dateToTimestamp(dateEnd) - dateToTimestamp(dateStart)) /
+        (1000 * 3600 * 24)
+    )
+  );
 }
 
 /**
@@ -247,9 +253,7 @@ function getWorkSchedule(/* period, countWorkDays, countOffDays */) {
  * Date(2020, 2, 1) => true
  */
 function isLeapYear(date) {
-  const year = date.getFullYear();
-  const daysInFeb = getCountDaysInMonth(2, year);
-  return daysInFeb === 29;
+  return getCountDaysInMonth(2, date.getFullYear()) === 29;
 }
 
 module.exports = {
