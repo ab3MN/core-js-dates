@@ -246,18 +246,16 @@ function getWeekNumberByDate(/* date */) {
  * Date(2024, 0, 13) => Date(2024, 8, 13)
  * Date(2023, 1, 1) => Date(2023, 9, 13)
  */
-function getNextFridayThe13th(date) {
-  const newDate = new Date();
+function getNextFridayThe13th(date = new Date()) {
   const [year, month] = [date.getFullYear(), date.getMonth()];
 
   for (let i = month; i < 12; i += 1) {
-    newDate.setFullYear(year, i, 13);
-    if (newDate.getDay() === 5) {
-      newDate.setHours(0, 0, 0, 0);
-      break;
+    date.setFullYear(year, i, 13);
+    if (date.getDay() === 5) {
+      return date;
     }
   }
-  return newDate;
+  return date;
 }
 /**
  * Returns the quarter of the year for a given date.
@@ -306,10 +304,33 @@ function getQuarter(date) {
  * { start: '01-01-2024', end: '15-01-2024' }, 1, 3 => ['01-01-2024', '05-01-2024', '09-01-2024', '13-01-2024']
  * { start: '01-01-2024', end: '10-01-2024' }, 1, 1 => ['01-01-2024', '03-01-2024', '05-01-2024', '07-01-2024', '09-01-2024']
  */
-function getWorkSchedule(/* period, countWorkDays, countOffDays */) {
-  throw new Error('Not implemented');
-}
+const transformMsToDate = (ms) =>
+  new Date(ms).toLocaleDateString().replace(/\./g, '-');
 
+const getTimeFromString = (date = '') => {
+  const [day, month, year] = date.split('-');
+  return new Date(year, month - 1, day).getTime();
+};
+
+function getWorkSchedule(period, countWorkDays, countOffDays) {
+  let start = getTimeFromString(period.start);
+  const end = getTimeFromString(period.end);
+  const day = 864e5;
+  const offDays = day * countOffDays;
+  const res = [];
+
+  for (; start < end; ) {
+    for (let i = 0; i < countWorkDays; i += 1) {
+      if (res.length !== 0) {
+        start += day;
+      }
+      if (start > end) return res;
+      res.push(transformMsToDate(start));
+    }
+    start += offDays;
+  }
+  return res;
+}
 /**
  * Determines whether the year in the provided date is a leap year.
  * A leap year is a year divisible by 4, but not by 100, unless it is also divisible by 400.
