@@ -114,13 +114,8 @@ function getCountDaysInMonth(month, year) {
  * '2024-02-01T00:00:00.000Z', '2024-02-12T00:00:00.000Z'  => 12
  */
 function getCountDaysOnPeriod(dateStart, dateEnd) {
-  return (
-    1 +
-    Math.ceil(
-      (dateToTimestamp(dateEnd) - dateToTimestamp(dateStart)) /
-        (1000 * 3600 * 24)
-    )
-  );
+  const [end, start] = [dateToTimestamp(dateEnd), dateToTimestamp(dateStart)];
+  return 1 + Math.ceil((end - start) / (1000 * 3600 * 24));
 }
 
 /**
@@ -304,8 +299,23 @@ function getQuarter(date) {
  * { start: '01-01-2024', end: '15-01-2024' }, 1, 3 => ['01-01-2024', '05-01-2024', '09-01-2024', '13-01-2024']
  * { start: '01-01-2024', end: '10-01-2024' }, 1, 1 => ['01-01-2024', '03-01-2024', '05-01-2024', '07-01-2024', '09-01-2024']
  */
-const transformMsToDate = (ms) =>
-  new Date(ms).toLocaleDateString().replace(/\./g, '-');
+const transformMsToDate = (ms) => {
+  const res = new Date(ms)
+    .toLocaleDateString()
+    .split('/')
+    .map((el, i, arr) => {
+      let time = el;
+      if (i === 0) {
+        time = arr[i + 1];
+      } else if (i === 1) {
+        time = arr[i - 1];
+      }
+      return time < 10 ? `0${time}` : time;
+    })
+    .join('-');
+
+  return res;
+};
 
 const getTimeFromString = (date = '') => {
   const [day, month, year] = date.split('-');
@@ -319,7 +329,7 @@ function getWorkSchedule(period, countWorkDays, countOffDays) {
   const offDays = day * countOffDays;
   const res = [];
 
-  for (; start < end; ) {
+  for (start; start < end; start) {
     for (let i = 0; i < countWorkDays; i += 1) {
       if (res.length !== 0) {
         start += day;
