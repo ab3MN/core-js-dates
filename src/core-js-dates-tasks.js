@@ -226,8 +226,13 @@ function getCountWeekendsInMonth(month, year) {
  * Date(2024, 0, 31) => 5
  * Date(2024, 1, 23) => 8
  */
-function getWeekNumberByDate(/* date */) {
-  throw new Error('Not implemented');
+function getWeekNumberByDate(date) {
+  const firstYearsDay = new Date(date.getFullYear(), 0, 1);
+
+  const [firstDay, weeksDay] = [firstYearsDay.getDay(), date.getDay()];
+
+  const weeks = Math.ceil((firstDay + (date - firstYearsDay) / 864e5) / 7);
+  return firstDay === 0 && weeksDay !== 0 ? weeks + 1 : weeks;
 }
 
 /**
@@ -300,21 +305,15 @@ function getQuarter(date) {
  * { start: '01-01-2024', end: '10-01-2024' }, 1, 1 => ['01-01-2024', '03-01-2024', '05-01-2024', '07-01-2024', '09-01-2024']
  */
 const transformMsToDate = (ms) => {
-  const res = new Date(ms)
-    .toLocaleDateString()
-    .split('/')
-    .map((el, i, arr) => {
-      let time = el;
-      if (i === 0) {
-        time = arr[i + 1];
-      } else if (i === 1) {
-        time = arr[i - 1];
-      }
-      return time < 10 ? `0${time}` : time;
-    })
-    .join('-');
+  const date = new Date(ms);
 
-  return res;
+  let [day, month] = [date.getDate(), date.getMonth() + 1];
+  const year = date.getFullYear();
+
+  if (day < 10) day = `0${day}`;
+  if (month < 10) month = `0${month}`;
+
+  return `${day}-${month}-${year}`;
 };
 
 const getTimeFromString = (date = '') => {
